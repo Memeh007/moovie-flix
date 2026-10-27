@@ -1,0 +1,20 @@
+# Moovie Flix desktop - local.properties (copy to local.properties; never commit it)
+sdk.dir=C:\\Users\\YOU\\AppData\\Local\\Android\\Sdk
+
+# Leave these EMPTY for the normal setup: the app then runs its own built-in sync server
+# (no Docker) and creates a private random account for this PC on first launch.
+MOOVIEFLIX_SUPABASE_URL=
+MOOVIEFLIX_SUPABASE_ANON_KEY=
+MOOVIEFLIX_SUPABASE_FALLBACK_URL=
+
+# Advanced: only if you run your own Supabase backend instead of the built-in server.
+MOOVIEFLIX_LOCAL_AUTO_AUTH_EMAIL=
+MOOVIEFLIX_LOCAL_AUTO_AUTH_PASSWORD=
+
+# Optional update feed (GitHub-releases-compatible). Blank = in-app updates off.
+MOOVIEFLIX_UPDATE_API_BASE=
+MOOVIEFLIX_UPDATE_OWNER=
+MOOVIEFLIX_UPDATE_REPO=
+
+# Optional Discord rich presence app id. Blank = off.
+MOOVIEFLIX_DISCORD_CLIENT_ID=

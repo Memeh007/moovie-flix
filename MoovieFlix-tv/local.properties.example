@@ -1,0 +1,20 @@
+# Moovie Flix TV - local.properties (copy to local.properties; never commit it)
+sdk.dir=C:\\Users\\YOU\\AppData\\Local\\Android\\Sdk
+
+# Your OWN signing key (create one with keytool, see README). Never share the .jks or passwords.
+MOOVIEFLIX_RELEASE_STORE_FILE=C:/Users/YOU/.android/my-moovieflix.jks
+MOOVIEFLIX_RELEASE_KEY_ALIAS=moovieflix
+MOOVIEFLIX_RELEASE_KEY_PASSWORD=
+MOOVIEFLIX_RELEASE_STORE_PASSWORD=
+
+# Leave EMPTY for the normal setup: the TV finds the PC on your network and pairs with a code.
+MOOVIEFLIX_SUPABASE_URL=
+MOOVIEFLIX_SUPABASE_ANON_KEY=
+MOOVIEFLIX_LOCAL_AUTO_AUTH_EMAIL=
+MOOVIEFLIX_LOCAL_AUTO_AUTH_PASSWORD=
+MOOVIEFLIX_LOCAL_AUTO_AUTH_USERNAME=
+
+# Optional update feed. Blank = in-app updates off.
+MOOVIEFLIX_UPDATE_API_BASE=
+MOOVIEFLIX_UPDATE_OWNER=
+MOOVIEFLIX_UPDATE_TV_REPO=

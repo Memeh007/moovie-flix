@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Moovie Flix local library (additive feature) -->
+    <string name="local_library_title">My Movies</string>
+    <string name="local_library_description">Play movie files from folders you own: device storage, USB drives, network shares available in the Android folder picker, or an HTTP directory listing.</string>
+    <string name="local_library_add_folders">+ Add movie folders</string>
+    <string name="local_library_manage">Manage folders</string>
+    <string name="local_library_add_folder">Add folder</string>
+    <string name="local_library_rescan">Rescan</string>
+    <string name="local_library_scanning">Scanning…</string>
+    <string name="local_library_http_hint">http://192.168.1.10:8000/movies/</string>
+    <string name="local_library_add_http">Add HTTP folder</string>
+    <string name="local_library_remove">Remove</string>
+    <string name="local_library_sources">Folders (%1$d)</string>
+    <string name="local_library_movies">Movies (%1$d)</string>
+</resources>

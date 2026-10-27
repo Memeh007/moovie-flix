@@ -1,0 +1,16 @@
+﻿build/
+.gradle/
+.kotlin/
+.idea/
+.cxx/
+local.properties
+*.jks
+*.keystore
+*.apk
+*.aab
+*.msi
+.env
+.env.*
+test-account.txt
+*-key.txt
+MoovieFlix-desktop/composeApp/src/desktopMain/native/windows/runtime/libmpv-2.dll
