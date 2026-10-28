@@ -146,7 +146,7 @@ object MoovieFlixPairing {
      */
     suspend fun refreshAddressIfMoved(context: Context): Boolean = withContext(Dispatchers.IO) {
         val creds = credentials(context) ?: return@withContext false
-        if (reachable(creds.backendUrl)) return@withContext false
+        if (reachable(creds.backendUrl, savedKey(context))) return@withContext false
         val key = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("publishable_key", null) ?: return@withContext false
         for (f in discover(context)) {
             val doc = runCatching { URL("${f.url}/.well-known/nuvio").readText() }.getOrNull() ?: continue
@@ -158,9 +158,25 @@ object MoovieFlixPairing {
         false
     }
 
-    private fun reachable(url: String): Boolean = runCatching {
-        val c = (URL("$url/health").openConnection() as HttpURLConnection).apply { connectTimeout = 3000; readTimeout = 3000 }
-        try { c.responseCode in 200..299 } finally { c.disconnect() }
+    /** True when the paired backend answers at its saved address. */
+    fun isBackendReachable(context: Context): Boolean {
+        val creds = credentials(context) ?: return false
+        return reachable(creds.backendUrl, savedKey(context))
+    }
+
+    private fun savedKey(context: Context): String? =
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("publishable_key", null)
+
+    // Both the PC's embedded server and Supabase/Kong backends serve /.well-known/nuvio, so any HTTP
+    // answer means "still there". A different publishable key means another server now owns that address.
+    private fun reachable(url: String, expectedKey: String? = null): Boolean = runCatching {
+        val c = (URL("$url/.well-known/nuvio").openConnection() as HttpURLConnection).apply { connectTimeout = 3000; readTimeout = 3000 }
+        try {
+            val code = c.responseCode
+            if (code !in 200..299 || expectedKey.isNullOrBlank()) return@runCatching code in 100..499
+            val key = runCatching { JSONObject(c.inputStream.bufferedReader().use { it.readText() }).optString("publishable_key") }.getOrNull()
+            key.isNullOrBlank() || key == expectedKey
+        } finally { c.disconnect() }
     }.getOrDefault(false)
 
     /** Restart the app process so the backend client is rebuilt with the paired server. */

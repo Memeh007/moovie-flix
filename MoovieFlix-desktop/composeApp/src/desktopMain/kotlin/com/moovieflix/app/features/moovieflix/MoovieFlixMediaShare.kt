@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
@@ -78,13 +79,29 @@ object MoovieFlixMediaShare : MoovieFlixMediaShareControl {
     }
 
     @Synchronized
-    private fun stop() { server?.stop(0); server = null }
+    private fun stop() { watcher?.cancel(); watcher = null; server?.stop(0); server = null; lastPublished = null }
+
+    @Volatile private var lastPublished: String? = null
+    private var watcher: kotlinx.coroutines.Job? = null
 
     private suspend fun publishWithRetry() {
         repeat(20) {
             val url = shareUrl
-            if (url != null && publish(listOf(url))) return
+            if (url != null && publish(listOf(url))) { lastPublished = url; startAddressWatcher(); return }
             delay(15_000)
+        }
+    }
+
+    /** Republishes the share URL when this PC's LAN address changes (DHCP), so TVs follow it. */
+    @Synchronized
+    private fun startAddressWatcher() {
+        if (watcher?.isActive == true) return
+        watcher = scope.launch {
+            while (isActive) {
+                delay(60_000)
+                val url = shareUrl ?: continue
+                if (enabled && url != lastPublished && publish(listOf(url))) lastPublished = url
+            }
         }
     }
 

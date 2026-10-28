@@ -1,49 +1,54 @@
-﻿# Moovie Flix (desktop + Android TV)
+# Moovie Flix (desktop + Android TV)
 
-> **Fork notice:** Moovie Flix is a modified fork of [NuvioDesktop / NuvioTV](https://github.com/tapframe) by
-> Tapframe and contributors, licensed under **GPL-3.0** (see `LICENSE`). All credit for the original apps goes
-> to the Nuvio / Tapframe authors. This repository contains no accounts, servers, keys or personal setup.
+Moovie Flix is a fork of NuvioDesktop / NuvioTV (GPL-3.0). This package needs **no Docker and no
+server setup**: the desktop app has a small sync server built in, and the TV app finds it on your
+home network.
 
-## Download
+Every install is private. On first launch the PC app creates its own random account, keys and
+passwords in `%APPDATA%\MoovieFlix\server\`. Nothing points at anybody else's computer, and there
+are no built-in accounts or update servers.
 
-From [Releases](https://github.com/Memeh007/moovie-flix/releases/latest):
+## Install (normal users)
 
-- **TV app:** `MoovieFlix-TV.apk` - direct link:
-  `https://github.com/Memeh007/moovie-flix/releases/latest/download/MoovieFlix-TV.apk`
-- **PC app (Windows x64):** `MoovieFlix-Windows-x64.msi`
+1. **PC:** run `MoovieFlix-Windows-x64.msi`, then open Moovie Flix. It signs in by itself.
+   If Windows Firewall asks, allow **Private networks**. The TV needs this to reach the PC.
+2. **TV (Android TV / Google TV / Fire TV):** install `MoovieFlix-TV.apk` (sideload it with
+   a USB stick, "Downloader", or `adb install`). Open it.
+3. On the PC, open **My Movies -> Pair a TV**. A 6-digit code appears.
+4. The TV looks for the PC on its own. Enter the code and press **Pair**. That's it.
+   - If the TV can't find the PC, type the address shown next to the code on the PC
+     (e.g. `192.168.0.20:47630`).
+   - The code changes after each use and expires after 15 minutes.
+5. Done. Everything on your PC account comes over to the TV right after pairing and keeps syncing.
 
-### Installing on an Android TV / Google TV / Fire TV
+## What syncs (PC <-> TV)
 
-1. On the TV install the free **Downloader** app (by AFTVnews) from the Play Store / Amazon Appstore.
-2. Allow it to install unknown apps (TV Settings -> Apps -> Security / Special app access -> Install unknown apps -> Downloader).
-3. In Downloader, type the APK link above and press Go, then Install.
-   (Or copy the APK to a USB stick, or use `adb install MoovieFlix-TV.apk`.)
+Pairing signs the TV in to **the same account** as the PC app (the private one the PC created for
+you), so the TV gets everything that account has, and both apps keep pulling each other's changes:
 
-## Quick start (no server needed)
+- **Addons** (with order, enabled/disabled and custom names) and **plugins / scraper repos**
+- **Profiles** (names, avatars, colours, PINs) and per-profile **settings** (Nuvio keeps TV and PC playback/app settings separate, as upstream does)
+- **Library**, **watched items**, **watch progress** and **Continue Watching**
+- **Collections**, **home rows / catalog settings**, **media servers**, **debrid / provider keys**, tracker settings
+- **My Movies -> Share to TV** folders (they show up on the TV by themselves)
 
-1. **PC:** run the MSI, open Moovie Flix. It creates its own private account on first launch
-   (stored in `%APPDATA%\MoovieFlix\server\`). Allow **Private networks** if Windows Firewall asks.
-2. **TV:** open Moovie Flix. It searches your home network for the PC.
-3. **PC:** open **My Movies -> Pair a TV**. A 6-digit code appears.
-4. **TV:** pick your PC, enter the code, press **Pair**. If the PC isn't found, type the address shown
-   next to the code (for example `192.168.0.20:47630`).
-5. Addons, profiles, library, progress and debrid settings now sync while the PC app is running.
+Changes show up on the other device when it opens, comes back to the foreground, or within about
+15 minutes while it stays open (there is no instant push). Reopening the TV app pulls right away.
 
-## Already running your own Supabase backend?
+**The PC app holds the data**, so it has to be running when the TV syncs. If the PC is off or
+asleep, the TV keeps working with what it already has and signs back in by itself as soon as the PC
+is back (no re-pairing). If your router gives the PC a new IP address, the TV finds it again on the
+home network automatically.
 
-The TV app can pair with a self-hosted backend too. Run `tools/pair-bridge.ps1` on any PC on the
-same network, pointing it at a properties file with your backend URL (LAN address), anon key and account:
+**Back up** `%APPDATA%\MoovieFlix\server\` if you want to keep your account and data. Deleting that
+folder creates a new, empty account; TVs then have to be paired again.
 
-```
-powershell -ExecutionPolicy Bypass -File tools\pair-bridge.ps1 -Config C:\path\to\local.properties
-```
+To re-pair a TV, clear the app's data on the TV (Settings -> Apps -> Moovie Flix -> Clear data)
+and pair again. Each pairing gets its own password, so you can revoke one TV without affecting the others.
 
-It shows a 6-digit code and answers the TV's discovery; after pairing the TV talks to your backend directly.
 ## Build it yourself
 
 Requirements: JDK 17, Android SDK (for the TV app), Windows for the MSI.
-
-Note: `libmpv-2.dll` (115 MB, over GitHub's file limit) is not in the repo. Download it from the release assets and place it in `MoovieFlix-desktop/composeApp/src/desktopMain/native/windows/runtime/` before building the Windows app.
 
 ```
 cd MoovieFlix-desktop
@@ -84,4 +89,3 @@ TV discovery. 47631 is My Movies sharing (optional).
 ## License
 
 GPL-3.0, same as upstream Nuvio. The source for these builds is in this package.
-

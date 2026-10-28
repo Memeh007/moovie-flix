@@ -25,6 +25,21 @@ foreach ($k in 'MOOVIEFLIX_SUPABASE_URL','MOOVIEFLIX_SUPABASE_ANON_KEY','MOOVIEF
 }
 $backend = $p['MOOVIEFLIX_SUPABASE_URL'].TrimEnd('/')
 if ($backend -match '//(localhost|127\.)') { throw "MOOVIEFLIX_SUPABASE_URL must be a LAN address the TV can reach, not localhost" }
+# The TV signs in to this backend right after pairing, so it has to be up now (and whenever the TV is used).
+function Test-Backend {
+  try { return (Invoke-WebRequest "$backend/.well-known/nuvio" -UseBasicParsing -TimeoutSec 5).StatusCode -lt 500 }
+  catch { if ($_.Exception.Response) { return [int]$_.Exception.Response.StatusCode -lt 500 }; return $false }
+}
+if (-not (Test-Backend)) {
+  $dd = Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'
+  if ((Test-Path $dd) -and -not (Get-Process 'Docker Desktop' -ErrorAction SilentlyContinue)) {
+    Write-Host "  Backend not answering; starting Docker Desktop..." -ForegroundColor Yellow; Start-Process $dd
+  }
+  Write-Host "  Waiting for the backend at $backend (up to 4 min)..."
+  $until = (Get-Date).AddMinutes(4)
+  while (-not (Test-Backend) -and (Get-Date) -lt $until) { Start-Sleep -Seconds 5 }
+  if (-not (Test-Backend)) { throw "The backend at $backend is not reachable. Start it (Docker Desktop / docker compose up) and run this again." }
+}
 $code = '{0:D6}' -f (Get-Random -Minimum 100000 -Maximum 999999)
 $expires = (Get-Date).AddMinutes($Minutes); $fails = 0
 $name = $env:COMPUTERNAME -replace '"',''
@@ -67,6 +82,7 @@ while (-not $done -and (Get-Date) -lt $expires) {
         } else {
           Send $c 200 (J @{backend_url=$backend; publishable_key=$p['MOOVIEFLIX_SUPABASE_ANON_KEY']; email=$p['MOOVIEFLIX_LOCAL_AUTO_AUTH_EMAIL']; password=$p['MOOVIEFLIX_LOCAL_AUTO_AUTH_PASSWORD']; device_id=[guid]::NewGuid().ToString()})
           Write-Host "  TV paired. It now talks to $backend directly; you can close this window." -ForegroundColor Green
+          Write-Host "  Keep this backend running whenever you use the TV (the TV signs in again by itself when it is back)."
           $done = $true
         }
       } else { Send $c 404 (J @{message='not found'}) }

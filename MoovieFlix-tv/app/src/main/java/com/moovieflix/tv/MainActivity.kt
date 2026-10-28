@@ -383,16 +383,8 @@ open class MainActivity : ComponentActivity() {
             return
         }
 
-        // MoovieFlixLocalAutoAuth: silently sign in to the local owner account when there is no session.
-        lifecycleScope.launch {
-            // Moovie Flix: follow the paired PC if its LAN address changed (restarts the app when it did).
-            if (com.moovieflix.tv.core.auth.MoovieFlixPairing.refreshAddressIfMoved(this@MainActivity)) {
-                com.moovieflix.tv.core.auth.MoovieFlixPairing.restartApp(this@MainActivity)
-            }
-            com.moovieflix.tv.core.auth.MoovieFlixLocalAutoAuth.ensureSignedIn(authManager, moovieFlixSupabase)
-            // Moovie Flix Media Share: pick up the PC's shared movie folders for this account.
-            com.moovieflix.tv.locallibrary.MoovieFlixSharedSources.sync(this@MainActivity, moovieFlixSupabase)
-        }
+        // Moovie Flix: see MoovieFlixConnectionKeeper.
+        com.moovieflix.tv.core.auth.MoovieFlixConnectionKeeper.attach(this, authManager, moovieFlixSupabase)
 
         window?.decorView?.post {
             val snapshot = com.moovieflix.tv.core.player.DisplayCapabilities.detect(this)
